@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Practical 1 - BFS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 30px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        h1, h2 {
+            text-align: center;
+            color: #444;
+        }
+        pre {
+            background: #222;
+            color: #0f0;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 15px;
+            line-height: 1.4;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Practical No: 1</h1>
+        <h2>AIM:Write a program to Implement the following algorithm on a sample graph or tree and print the traversal order</h2>
+        <p><b>Algorithm:</b> i) Breath First Search(BFS) </p>
+        
+        <h2>CODE:</h2>
+        <pre>
+# Graph
+graph = {
+    'A': {'B', 'C'},
+    'B': {'A', 'D', 'E'},
+    'C': {'A', 'F'},
+    'D': {'B'},
+    'E': {'B', 'F'},
+    'F': {'C', 'E'}
+}
+
+# BFS Traversal with level
+def bfs(start):
+    visited = {start}
+    queue = [start]
+    level = {start: 0}
+    while queue:
+        node = queue.pop(0)
+        for nb in graph[node]:
+            if nb not in visited:
+                visited.add(nb)
+                queue.append(nb)
+                level[nb] = level[node] + 1
+    print(level) # levels of each node
+    return visited
+
+print(bfs('A'))
+
+# All BFS paths between start & goal
+def bfs_paths(graph, start, goal):
+    queue = [(start, [start])]
+    while queue:
+        v, path = queue.pop(0)
+        for nxt in graph[v] - set(path):
+            if nxt == goal:
+                yield path + [nxt]
+            else:
+                queue.append((nxt, path + [nxt]))
+
+print(list(bfs_paths(graph, 'A', 'D')))
+
+# Shortest path (first found BFS path)
+def shortest_path(graph, start, goal):
+    return next(bfs_paths(graph, start, goal), None)
+
+print(shortest_path(graph, 'A', 'D'))
+        </pre>
+    </div>
+
+<div class="container">
+        <p><b>Algorithm:</b>ii) Depth First Search</p>
+        
+        <h2>CODE:</h2>
+        <pre>
+# Graph
+graph = {
+    'A': {'B', 'C'},
+    'B': {'A', 'D', 'E'},
+    'C': {'A', 'F'},
+    'D': {'B'},
+    'E': {'B', 'F'},
+    'F': {'C', 'E'}
+}
+
+
+# BFS Traversal with level
+def bfs(start):
+    visited = {start}
+    queue = [start]
+    level = {start: 0}
+    while queue:
+        node = queue.pop(0)
+        for nb in graph[node]:
+            if nb not in visited:
+                visited.add(nb)
+                queue.append(nb)
+                level[nb] = level[node] + 1
+    print(level)  # levels of each node
+    return visited
+
+
+print(bfs('A'))
+
+
+# All BFS paths between start & goal
+def bfs_paths(graph, start, goal):
+    queue = [(start, [start])]
+    while queue:
+        v, path = queue.pop(0)
+        for nxt in graph[v] - set(path):
+            if nxt == goal:
+                yield path + [nxt]
+            else:
+                queue.append((nxt, path + [nxt]))
+
+
+print(list(bfs_paths(graph, 'A', 'D')))
+
+
+# Shortest path (first found BFS path)
+def shortest_path(graph, start, goal):
+    return next(bfs_paths(graph, start, goal), None)
+
+
+print(shortest_path(graph, 'A', 'D'))
+
+        </pre>
+    </div>
+
+  <div class="container">
+        <h1>Practical No: 2</h1>
+        <h2>AIM : Write a program to Implement Uniform Cost Search for pathfinding on a weighted graph</h2>
+        
+        <h2>CODE:</h2>
+        <pre>
+# Weighted Graph
+graph = {
+    'S': {'A': 1, 'B': 4},
+    'A': {'S': 1, 'C': 2, 'D': 5},
+    'B': {'S': 4, 'D': 2},
+    'C': {'A': 2, 'D': 1, 'G': 7},
+    'D': {'A': 5, 'B': 2, 'C': 1, 'G': 2},
+    'G': {'C': 7, 'D': 2}
+}
+
+import heapq
+
+def dijkstra(graph, start, goal):
+    pq = [(0, start, [start])]  # (cost, node, path)
+    visited = set()
+
+    while pq:
+        (cost, node, path) = heapq.heappop(pq)
+        if node in visited:
+            continue
+        visited.add(node)
+
+        if node == goal:
+            return cost, path
+
+        for nb, w in graph[node].items():
+            if nb not in visited:
+                heapq.heappush(pq, (cost + w, nb, path + [nb]))
+
+    return float("inf"), []
+
+
+# Run
+cost, path = dijkstra(graph, 'S', 'G')
+print(f"Minimum Cost : {cost}")
+print("path", " -> ".join(path))
+
+        </pre>
+    </div>
+
+  <div class="container">
+        <h1>Practical No: 3</h1>
+        <h2>AIM : Write a program to solve a grid - based pathfinding problem using A* heuristic algorithm</h2>
+        
+        <h2>CODE:</h2>
+        <pre>
+H = {
+    'A': 11, 'B': 6, 'C': 5, 'D': 7, 'E': 3,
+    'F': 6, 'G': 5, 'H': 3, 'I': 1, 'J': 0
+}
+
+# Graph
+Graph = {
+    'A': [('B', 6), ('F', 3)],
+    'B': [('A', 6), ('C', 3), ('D', 2)],
+    'C': [('B', 3), ('D', 1), ('E', 5)],
+    'D': [('B', 2), ('C', 1), ('E', 8)],
+    'E': [('C', 5), ('D', 8), ('I', 5), ('J', 5)],
+    'F': [('A', 3), ('G', 1), ('H', 7)],
+    'G': [('F', 1), ('I', 3)],
+    'H': [('F', 7), ('I', 2)],
+    'I': [('E', 5), ('G', 3), ('H', 2), ('J', 3)]
+}
+
+
+def a_star(start, goal):
+    open_set = {start}
+    closed_set = set()
+    g = {start: 0}
+    parents = {start: start}
+
+    while open_set:
+        # pick node with lowest f = g + h
+        n = min(open_set, key=lambda x: g[x] + H[x])
+
+        if n == goal:  # reconstruct path
+            path = []
+            while parents[n] != n:
+                path.append(n)
+                n = parents[n]
+            path.append(start)
+            return list(reversed(path))
+
+        open_set.remove(n)
+        closed_set.add(n)
+
+        for m, w in Graph.get(n, []):
+            if m in closed_set:
+                continue
+            new_g = g[n] + w
+            if m not in open_set or new_g < g.get(m, float('inf')):
+                g[m] = new_g
+                parents[m] = n
+                open_set.add(m)
+
+    return None
+
+
+path = a_star('A', 'J')
+print("Path found:", path if path else "No path")
+
+        </pre>
+    </div>
+
+  <div class="container">
+        <h1>Practical No: 4</h1>
+        <h2>AIM : Write a program to Implement Hill Climbing</h2>
+        
+        <h2>CODE:</h2>
+        <pre>
+import math
+
+# fixed points
+points = [(1, 4), (6, 5), (7, 2), (9, 4)]
+start = [1, 1]
+inc = 0.1
+
+def total_dist(x, y, pts):
+    return sum((x - px) ** 2 + (y - py) ** 2 for px, py in pts)
+
+min_dist = total_dist(*start, points)
+i = 1
+
+while True:
+    # check 4 neighbors
+    moves = [
+        (start[0] + inc, start[1]),
+        (start[0] - inc, start[1]),
+        (start[0], start[1] + inc),
+        (start[0], start[1] - inc)
+    ]
+
+    # compute their total distance
+    dists = [total_dist(x, y, points) for x, y in moves]
+
+    print(i, round(start[0], 2), round(start[1], 2))
+
+    # pick best move
+    best_idx = dists.index(min(dists))
+
+    if dists[best_idx] < min_dist:
+        start = list(moves[best_idx])
+        min_dist = dists[best_idx]
+        i += 1
+    else:
+        break
+        </pre>
+    </div>
+
+  <div class="container">
+        <h1>Practical No: 5</h1>
+        <h2>AIM: Write a program to Implement Alpha - Beta Pruning</h2>
+        
+        <h2>CODE:</h2>
+        <pre>
+tree = [
+    [[[84, -29], [-37, -25]], [[1, -43], [-75, 49]]],
+    [[[-21, -51], [58, -46]], [[-3, -13], [26, 79]]]
+]
+
+pruned = 0
+
+def alphabeta(node, depth=0, alpha=-100, beta=100):
+    """Alpha-Beta pruning on nested lists of values"""
+    global pruned
+
+    # if leaf node
+    if not isinstance(node, list):
+        return node
+
+    if depth % 2 == 0:  # Maximizer
+        value = -100
+        for child in node:
+            value = max(value, alphabeta(child, depth + 1, alpha, beta))
+            alpha = max(alpha, value)
+            if alpha >= beta:
+                pruned += 1
+                break
+        return value
+    else:  # Minimizer
+        value = 100
+        for child in node:
+            value = min(value, alphabeta(child, depth + 1, alpha, beta))
+            beta = min(beta, value)
+            if beta <= alpha:
+                pruned += 1
+                break
+        return value
+
+
+result = alphabeta(tree)
+print("Result:", result)
+print("Times pruned:", pruned)
+
+        </pre>
+    </div>
+
+  <div class="container">
+        <h1>Practical No: 6</h1>
+        <h2>AIM : Write a program to build a Decision Tree Classifier on a DataSet</h2>
+        
+        <h2>CODE:</h2>
+        <pre>
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier, plot_tree, export_text
+import matplotlib.pyplot as plt
+
+# Dataset
+df = pd.DataFrame({
+    'Outlook': ['Sunny','Sunny','Overcast','Rain','Rain','Rain','Overcast',
+    'Sunny','Sunny','Rain','Sunny','Overcast','Overcast','Rain'],
+    'Temperature': ['Hot','Hot','Hot','Mild','Cool','Cool','Cool','Mild',
+    'Cool','Mild','Mild','Mild','Hot','Mild'],
+    'Humidity': ['High','High','High','High','Normal','Normal','Normal',
+    'High','Normal','Normal','Normal','High','Normal','High'],
+    'Wind': ['Weak','Strong','Weak','Weak','Weak','Strong','Strong','Weak',
+    'Weak','Weak','Strong','Strong','Weak','Strong'],
+    'Play': ['No','No','Yes','Yes','Yes','No','Yes','No','Yes','Yes','Yes',
+    'Yes','Yes','No']
+})
+
+# Encode features & target
+X = pd.get_dummies(df.drop('Play', axis=1))
+y = df['Play'].map({'No': 0, 'Yes': 1})
+
+# Split & train
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+clf = DecisionTreeClassifier(criterion="entropy", random_state=42).fit(X_train, y_train)
+
+# Accuracy
+print("Accuracy:", clf.score(X_test, y_test))
+
+# Text Tree
+print("\nDecision Tree Structure:\n")
+print(export_text(clf, feature_names=list(X.columns)))
+
+# Graphical Tree
+plt.figure(figsize=(12, 6))
+plot_tree(
+    clf,
+    filled=True,
+    feature_names=X.columns,
+    class_names=['No', 'Yes'],
+    fontsize=10,
+    rounded=True
+)
+plt.show()
+
+        </pre>
+    </div>
+
+  <div class="container">
+        <h1>Practical No: 7</h1>
+        <h2>AIM : Write a program to Implement K-Means Clustering on a dataset</h2>
+        
+        <h2>CODE:</h2>
+        <pre>
+import pandas as pd, matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+
+# DataFrame
+df = pd.DataFrame({
+    'Age':[22,23,25,24,26,35,36,34,33,37,48,50,52,49,51,23,36,50,35,48],
+    'Salary':[25000,27000,26000,28000,24000,60000,62000,58000,61000,59000,
+              100000,98000,105000,97000,102000,25500,60500,101000,61500,99000],
+    'Browsing_Time':[1.5,1.8,2.0,1.6,1.9,5.0,5.2,4.8,5.5,5.1,
+                      9.0,8.5,9.2,8.8,9.5,2.0,5.3,9.0,5.0,8.7]
+})
+
+# Scale + cluster
+scaled = StandardScaler().fit_transform(df[['Age','Salary','Browsing_Time']])
+df['Cluster'] = KMeans(n_clusters=3, random_state=42).fit_predict(scaled)
+
+# Plot
+plt.figure(figsize=(8,6))
+for c in df['Cluster'].unique():
+    sub = df[df['Cluster']==c]
+    plt.scatter(sub['Age'], sub['Salary'], label=f'Cluster {c}', s=80)
+
+plt.title('Clusters (Age vs Salary)')
+plt.xlabel('Age')
+plt.ylabel('Salary')
+plt.legend()
+plt.grid()
+plt.show()
+
+        </pre>
+    </div>
+
+  <div class="container">
+        <h1>Practical No: 8</h1>
+        <h2>AIM : Write a program to Perform Hierarchical Clustering and draw a dendrogram</h2>
+        
+        <h2>CODE:</h2>
+        <pre>
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from scipy.cluster.hierarchy import linkage, dendrogram
+from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import AgglomerativeClustering
+
+# Data
+df = pd.DataFrame({
+    'Age':[22,25,47,52,46,56,48,55,60,32,40,28,38,29,30,41,26,34,45,50],
+    'Salary':[25000,27000,90000,110000,95000,120000,99000,105000,115000,48000,
+              80000,30000,75000,32000,35000,82000,28000,60000,87000,100000],
+    'Browsing_time':[1.5,2.0,8.5,9.0,7.5,10.0,7.0,8.0,9.5,3.5,6.5,2.5,6.0,3.0,3.2,7.0,2.2,4.5,6.8,8.5]
+})
+
+# Scale
+scaled = StandardScaler().fit_transform(df)
+
+# Dendrogram
+plt.figure(figsize=(10,6))
+dendrogram(linkage(scaled, method='ward'), orientation='top', distance_sort='ascending', show_leaf_counts=True)
+plt.title("VIDHNESH 549 - Dendrogram")
+plt.xlabel("Samples")
+plt.ylabel("Distance")
+plt.show()
+
+# Agglomerative clustering
+df['Cluster'] = AgglomerativeClustering(n_clusters=3, linkage='ward').fit_predict(scaled)
+
+# Show result
+print("\nClustered Data:\n", df[['Age','Salary','Browsing_time','Cluster']])
+
+# Scatter plot
+sns.scatterplot(data=df, x='Salary', y='Browsing_time', hue=df['Cluster'].astype(str), palette='deep')
+plt.title("Hierarchical Clustering Result")
+plt.xlabel("Salary")
+plt.ylabel("Browsing Time")
+plt.grid(True)
+plt.show()
+
+        </pre>
+    </div>
+
+  <div class="container">
+        <h1>Practical No: 9</h1>
+        <h2>AIM : Write a program to build Naive Bayes classifiers on a dataset</h2>
+        
+        <h2>CODE:</h2>
+        <pre>
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
+# Load & clean
+data = pd.read_csv(r"C:\loan.csv").dropna()
+
+# Encode categorical + target
+le = LabelEncoder()
+for col in ['Gender','Married','Education','Self_Employed','Loan_Status']:
+    data[col] = le.fit_transform(data[col])
+
+# Features & target
+X = data[['Gender','Married','Education','Self_Employed','ApplicantIncome','LoanAmount']]
+y = data['Loan_Status']
+
+# Train/test split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Train model & predict
+model = GaussianNB().fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+# Evaluate
+print("Accuracy:", accuracy_score(y_test, y_pred))
+print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
+print("Classification Report:\n", classification_report(y_test, y_pred))
+
+# Predict a new sample
+sample = pd.DataFrame([[1,1,1,0,5000,128]],
+                      columns=['Gender','Married','Education','Self_Employed','ApplicantIncome','LoanAmount'])
+pred = model.predict(sample)[0]
+print("Predicted Loan Status:", {0:'N', 1:'Y'}[pred])
+
+        </pre>
+    </div>
+  <div class="container">
+        <h1>Practical No: 10</h1>
+        <h2>AIM : Write a program to Solve the 8 - Puzzle Problem</h2>
+        
+        <h2>CODE:</h2>
+        <pre>
+from collections import deque
+
+goal = [[1,4,7],[2,5,8],[3,6,0]]
+moves = [(-1,0),(1,0),(0,-1),(0,1)]  # Up, Down, Left, Right
+
+def find_blank(s):
+    for i in range(3):
+        for j in range(3):
+            if s[i][j] == 0:
+                return i, j
+
+def generate_children(state):
+    x, y = find_blank(state)
+    children = []
+    for dx, dy in moves:
+        nx, ny = x + dx, y + dy
+        if 0 <= nx < 3 and 0 <= ny < 3:
+            new = [row[:] for row in state]
+            new[x][y], new[nx][ny] = new[nx][ny], new[x][y]
+            children.append(new)
+    return children
+
+def bfs(start):
+    queue = deque([(start, [])])
+    visited = set()
+    while queue:
+        state, path = queue.popleft()
+        tstate = tuple(map(tuple, state))
+        if tstate in visited:
+            continue
+        visited.add(tstate)
+        if state == goal:
+            return path + [state]
+        for child in generate_children(state):
+            queue.append((child, path + [state]))
+    return None
+
+def print_path(path):
+    for i, state in enumerate(path):
+        print(f"Step {i}:")
+        for row in state:
+            print(row)
+        print()
+
+start_state = [[1,4,6],[2,0,7],[3,5,8]]
+path = bfs(start_state)
+print_path(path) if path else print("No solution found")
+
+        </pre>
+    </div>
+
+  <div class="container">
+        <h1>Practical No: 11</h1>
+        <h2>AIM : Write a program to Solve a Water Jug Problem</h2>
+        
+        <h2>CODE:</h2>
+        <pre>
+# 3 water jugs problem
+
+# Capacities -> (x, y, z) where x>y>z
+capacity = (12, 8, 5)  # Maximum capacities of 3 jugs -> x, y, z
+x = capacity[0]
+y = capacity[1]
+z = capacity[2]
+
+# To mark visited states
+memory = {}
+
+# Store solution path
+ans = []
+
+def get_all_states(state):
+    # Let the 3 Jugs be called a, b, c
+    a, b, c = state
+
+    # If current state is goal
+    if a == 6 and b == 6:
+        ans.append(state)
+        return True
+
+    # If current state is already visited, return early
+    if (a, b, c) in memory:
+        return False
+    memory[(a, b, c)] = 1
+
+    # Empty Jug a
+    if a > 0:
+        # Empty a into b
+        if a + b <= y:
+            if get_all_states((0, a + b, c)):
+                ans.append(state)
+                return True
+        else:
+            if get_all_states((a - (y - b), y, c)):
+                ans.append(state)
+                return True
+        # Empty a into c
+        if a + c <= z:
+            if get_all_states((0, b, a + c)):
+                ans.append(state)
+                return True
+        else:
+            if get_all_states((a - (z - c), b, z)):
+                ans.append(state)
+                return True
+
+    # Empty Jug b
+    if b > 0:
+        # Empty b into a
+        if a + b <= x:
+            if get_all_states((a + b, 0, c)):
+                ans.append(state)
+                return True
+        else:
+            if get_all_states((x, b - (x - a), c)):
+                ans.append(state)
+                return True
+        # Empty b into c
+        if b + c <= z:
+            if get_all_states((a, 0, b + c)):
+                ans.append(state)
+                return True
+        else:
+            if get_all_states((a, b - (z - c), z)):
+                ans.append(state)
+                return True
+
+    # Empty Jug c
+    if c > 0:
+        # Empty c into a
+        if a + c <= x:
+            if get_all_states((a + c, b, 0)):
+                ans.append(state)
+                return True
+        else:
+            if get_all_states((x, b, c - (x - a))):
+                ans.append(state)
+                return True
+        # Empty c into b
+        if b + c <= y:
+            if get_all_states((a, b + c, 0)):
+                ans.append(state)
+                return True
+        else:
+            if get_all_states((a, y, c - (y - b))):
+                ans.append(state)
+                return True
+
+    return False
+
+initial_state = (12, 0, 0)
+print("Starting work...\n")
+get_all_states(initial_state)
+
+ans.reverse()
+for i in ans:
+    print(i)
+        </pre>
+    </div>
+</body>
+</html>
